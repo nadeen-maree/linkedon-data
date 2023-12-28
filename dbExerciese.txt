@@ -1,0 +1,189 @@
+Exercise 1:
+db.linkedon.count({
+    salary:{ $gt: 25000 } 
+})
+
+Answer Exercise 1:
+231
+
+<------------------------------------------------------------->
+
+Exercise 2: 
+db.linkedon.find(
+    {},
+    {firstName:1, salary:1, _id:0}
+    )
+    .sort({salary: -1})
+    .limit(3)
+
+Answer Exercise 2:
+[
+  { firstName: 'Alice', salary: 69900 },
+  { firstName: 'Eva', salary: 69500 },
+  { firstName: 'Maisie', salary: 69400 }
+]
+
+<------------------------------------------------------------->
+
+Exercise 3:
+db.linkedon.count({
+    $and: [
+        { "currentCompany.name": "Walmart" },
+        { "salary": { $gte: 7000 } }
+    ]
+})
+
+Answer Exercise 3:
+24
+<------------------------------------------------------------->
+
+Exercise 4:
+db.linkedon.find({
+  $or: [
+    { "currentCompany.industry": "Sales" },
+    { "currentCompany.industry": "Retail" }
+  ]
+}, {
+  "currentCompany.name": 1,
+  firstName: 1,
+  lastName: 1,
+  salary: 1
+}).sort({ salary: -1 }).limit(1)
+
+Answer Exercise 4:
+[
+  {
+    firstName: 'Holly',
+    lastName: 'Gonzales',
+    currentCompany: { industry: 'Sales', name: 'Groupon' },
+    salary: 20000
+  }
+]
+
+<------------------------------------------------------------->
+
+Exercise 5:
+db.linkedon.count({
+  $or: [
+    { "currentCompany.name": "Apple" },
+    { "previousCompanies.name": "Apple" }
+  ]
+})
+
+Answer Exercise 5:
+325
+
+<------------------------------------------------------------->
+
+Extension 1:
+db.linkedon.aggregate([
+  {
+    $match: { "currentCompany.name": "Apple" }
+  },
+  {
+    $group: {
+      _id: "$currentCompany.industry",
+      count: { $sum: 1 }
+    }
+  }
+])
+
+Answer Extension 1:
+[
+  { _id: 'Manufacturing', count: 26 },
+  { _id: 'Retail', count: 28 },
+  { _id: 'Tech', count: 10 },
+  { _id: 'Sales', count: 51 }
+]
+
+<------------------------------------------------------------->
+
+Extension 2:
+db.linkedon.aggregate([
+  {
+    $match: { "currentPosition": "Analyst" }
+  },
+  {
+    $group: {
+      _id: "$currentCompany.name",
+      totalSalary: { $sum: "$salary" },
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $project: {
+      _id: 1,
+      averageSalary: { $divide: ["$totalSalary", "$count"] }
+    }
+  }
+])
+
+Answer Extension 2:
+[
+  { _id: 'Suisse Bank', averageSalary: 24975 },
+  { _id: 'Google', averageSalary: 32650 },
+  { _id: 'HP', averageSalary: 24880 },
+  { _id: 'Dell', averageSalary: 28700 },
+  { _id: 'Twitter', averageSalary: 24325 },
+  { _id: 'Chase', averageSalary: 40580 },
+  { _id: 'Amazon', averageSalary: 31300 },
+  { _id: 'Goldman Sachs', averageSalary: 37200 },
+  { _id: 'Nintendo', averageSalary: 14550 },
+  { _id: 'Microsoft', averageSalary: 32000 },
+  { _id: 'Robin Hood', averageSalary: 50500 },
+  { _id: 'J.P Morgan', averageSalary: 48960 },
+  { _id: 'Capital One', averageSalary: 38533.333333333336 }
+]
+
+<------------------------------------------------------------->
+
+Extension 3:
+db.linkedon.aggregate([
+  {
+    $match: {
+      $and: [
+        {
+          $or: [
+            { "currentCompany.name": "Google" },
+            { "currentCompany.name": "Apple" }
+          ]
+        },
+        { "currentCompany.industry": "Tech" }
+      ]
+    }
+  },
+  {
+    $group: {
+      _id: "$lastName",
+      average: { $avg: "$salary" }
+    }
+  },
+  {
+    $sort: { average: -1 }
+  }
+])
+
+Answer Extension 3:
+[
+  { _id: 'Ortiz', average: 39500 },
+  { _id: 'Russell', average: 38700 },
+  { _id: 'Morales', average: 38400 },
+  { _id: 'Reynolds', average: 38300 },
+  { _id: 'Gonzales', average: 38000 },
+  { _id: 'Bennett', average: 35100 },
+  { _id: 'Foster', average: 34850 },
+  { _id: 'Barnes', average: 33600 },
+  { _id: 'Sullivan', average: 32900 },
+  { _id: 'Chavez', average: 32000 },
+  { _id: 'Gutierre', average: 31500 },
+  { _id: 'Griffin', average: 30400 },
+  { _id: 'Hughes', average: 30200 },
+  { _id: 'Perry', average: 30100 },
+  { _id: 'Price', average: 28900 },
+  { _id: 'Ross', average: 28500 },
+  { _id: 'Myers', average: 27100 },
+  { _id: 'Jenkins', average: 23800 },
+  { _id: 'Wood', average: 23500 },
+  { _id: 'Fisher', average: 23400 }
+]
+
